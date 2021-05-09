@@ -1,67 +1,119 @@
-const auth = firebase.auth();
+// 
+// Google Charts declaration
+// 
 
-const isSignedIn = document.getElementById("isSignedIn");
-const isSignedOut = document.getElementById("isSignedOut");
+google.charts.load('current', {'packages':['corechart']});
+// google.charts.setOnLoadCallback(drawChart);
+
+function drawChart(dataTable, elementId) {
+    // var data = google.visualization.arrayToDataTable([
+    //     ['Year', 'Sales', 'Expenses'],
+    //     ['2004',  1000,      400],
+    //     ['2005',  1170,      460],
+    //     ['2006',  660,       1120],
+    //     ['2007',  1030,      540]
+    // ]);
+
+    var data = google.visualization.arrayToDataTable(dataTable);
+
+    var options = {
+        title: '',
+        curveType: 'function',
+        legend: { position: 'bottom' }
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById(elementId));
+
+    chart.draw(data, options);
+}
+
+// 
+// Firebase authentication
+// 
+
+const auth = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
+
+const navbar = document.getElementById("homepage-navbar");
+const homepage = document.getElementById("wrapper");
+const loginpage = document.getElementById("loginpage");
+const displayName = document.getElementById("display-name");
+
+navbar.hidden = true;
+homepage.hidden = true;
+loginpage.hidden = false;
 
 const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
 
-const userDetails = document.getElementById("userDetails");
-
-const provider = new firebase.auth.GoogleAuthProvider();
-
 signInBtn.onclick = () => auth.signInWithPopup(provider);
-
 signOutBtn.onclick = () => auth.signOut();
+
+// 
+// Firestore queries
+// 
+
+const db = firebase.firestore();
+const COLLECTION_NAME = "sensor_data";
+let unsubscribe;
 
 auth.onAuthStateChanged(user => {
     if (user) {
-        isSignedIn.hidden = false;
-        isSignedOut.hidden = true;
-        userDetails.innerHTML = `<h3>Hello ${user.displayName}!</h3> <p> User ID: ${user.uid} </p>`;
+        navbar.hidden = false;
+        homepage.hidden = false;
+        loginpage.hidden = true;
 
-        createBeeRack.hidden = false;
+        console.log("user");
+        console.log(user);
+        displayName.innerHTML = `Hi, ${user.displayName.split(" ")[0]}!`;
 
-        beeRacksRef = db.collection("bees_rack");
+        sensorDataRef = db.collection(COLLECTION_NAME);
 
-        const { serverTimestamp } = firebase.firestore.FieldValue;
-
-        createBeeRack.onclick = () => {
-            beeRacksRef.add({
-                uid: user.uid,
-                temperature: 45,
-                humidity: 25,
-                "fan speed": 0.6,
-                time: serverTimestamp(),
-            });
-        }
+        // const { serverTimestamp } = firebase.firestore.FieldValue;
+        // createBeeRack.onclick = () => {
+        //     beeRacksRef.add({
+        //         uid: user.uid,
+        //         temperature: 45,
+        //         humidity: 25,
+        //         "fan speed": 0.6,
+        //         time: serverTimestamp(),
+        //     });
+        // }
         
-        unsubscribe = beeRacksRef
-        .where("uid", "==", user.uid)
+        unsubscribe = sensorDataRef
+        // .where("uid", "==", user.uid)
         // .orderBy('time')
         .onSnapshot(querySnapshot => {
-            const racks = querySnapshot.docs.map(doc => {
-                return `<li> ${ doc.data().temperature } </li>`
+            const temperatureData = querySnapshot.docs.map(doc => {
+                return [Number(doc.data().time["seconds"]) - 1620565000, Number(doc.data().temperature)];
+            });
+            const fanSpeedData = querySnapshot.docs.map(doc => {
+                return [Number(doc.data().time["seconds"]) - 1620565000, Number(doc.data().fan1Speed), Number(doc.data().fan2Speed)];
             });
 
-            beeRacks.innerHTML = racks.join("");
+            temperatureData.sort(function(a, b) {
+                return a[0] - b[0];
+            });
+            fanSpeedData.sort(function(a, b) {
+                return a[0] - b[0];
+            });
+
+            temperatureData.unshift(["time", "temperature"]);
+            fanSpeedData.unshift(["time", "fan 1 speed", "fan 2 speed"]);
+
+            console.log(temperatureData);
+            console.log(temperatureData[0][1]);
+            // console.log(temperatureData[0][1]["seconds"]);
+            console.log(fanSpeedData);
+
+            drawChart(temperatureData, "temperature_chart");
+            drawChart(fanSpeedData, "fanspeed_chart");
         });
 
     } else {
-        isSignedIn.hidden = true;
-        isSignedOut.hidden = false;
-        userDetails.innerHTML = "";
-        createBeeRack.hidden = true;
-        createBeeRack.onclick = () => {};
+        navbar.hidden = true;
+        homepage.hidden = true;
+        loginpage.hidden = false;
         unsubscribe && unsubscribe();
     }
-})
-
-
-const db = firebase.firestore();
-
-const createBeeRack = document.getElementById("createBeeRack");
-const beeRacks = document.getElementById("beeRacks");
-
-let beeRacksRef;
-let unsubscribe;
+});

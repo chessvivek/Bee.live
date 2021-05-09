@@ -35,9 +35,11 @@ export const webApi = functions.https.onRequest(main);
 interface SensorData {
     temperature: number,
     humidity: number,
-    fanSpeed: number,
+    fan1Speed: number,
+    fan2Speed: number,
     sensorId: string,
     userId: string,
+    time: any,
 }
 
 // Create new sensor data point
@@ -46,9 +48,11 @@ app.post("/sensor_data/new", async (req, res) => {
     const data: SensorData = {
       temperature: req.body["temperature"],
       humidity: req.body["humidity"],
-      fanSpeed: req.body["fanSpeed"],
+      fan1Speed: req.body["fan1Speed"],
+      fan2Speed: req.body["fan2Speed"],
       sensorId: req.body["sensorId"],
       userId: req.body["userId"],
+      time: admin.firestore.FieldValue.serverTimestamp(),
     };
 
     // Crate a new document in the collection
@@ -139,3 +143,60 @@ app.delete("/user/:userId", async (req, res) => {
 // UPDATE REQUEST
 //
 // No update request supported yet
+
+
+//
+// Read request for the fan
+//
+app.get("/fan_status/:sensorId", async (req, res) => {
+  try {
+    // Query the DB for specific user's data
+    const querySnapshot = await db.collection("fan_status")
+        .where("sensorId", "==", req.params.sensorId)
+        .get();
+
+    // Put the query results in a nice form
+    const data: any[] = [];
+    querySnapshot.forEach(
+        (doc) => {
+          data.push({
+            data: doc.data(),
+          });
+        }
+    );
+
+    // Return the sensor data for the given user
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+
+//
+// PATCH request for the fan
+//
+app.post("/fan_status/:sensorId", async (req, res) => {
+  try {
+    // Query the DB for specific user's data
+    const querySnapshot = await db.collection("fan_status")
+        .where("sensorId", "==", req.params.sensorId)
+        .get();
+
+    // Put the query results in a nice form
+    const data: any[] = [];
+    querySnapshot.forEach(
+        (doc) => {
+          doc.ref.update({
+            isFan1Active: req.body["isFan1Active"],
+            isFan2Active: req.body["isFan2Active"],
+          });
+        }
+    );
+
+    // Return the sensor data for the given user
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
