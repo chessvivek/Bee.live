@@ -1,44 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bee.live</title>
-
-    <!-- The core Firebase JS SDK is always required and must be listed first -->
-    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-app.js"></script>
-
-    <!-- TODO: Add SDKs for Firebase products that you want to use
-        https://firebase.google.com/docs/web/setup#available-libraries -->
-    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-firestore.js"></script>
-
-    <script>
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    var firebaseConfig = {
-        apiKey: "AIzaSyCkz1gCzr2uUv3P2_YA1CfuoMf10yJhVYw",
-        authDomain: "beeslive-17ec1.firebaseapp.com",
-        projectId: "beeslive-17ec1",
-        storageBucket: "beeslive-17ec1.appspot.com",
-        messagingSenderId: "342172670877",
-        appId: "1:342172670877:web:9b4cfeb4cad665acbf2d74",
-        measurementId: "G-CS9ZETFHYR"
-    };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
-    </script>
-
-    <script src="app.js" defer></script>
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+ <link rel="stylesheet" href="/css/main.css">
 </head>
-<body>
+    <body>
     <h1>Welcome to bees.live</h1>
      <nav>
             <ul>
@@ -46,7 +11,10 @@
                 <li><a href="aboutthisapplication">About Us</a></li>
                 <li><a href="temperature">Temperature</a></li>
             </ul>
-        </nav>
+    </nav>
+     
+    <img src="https://images.unsplash.com/photo-1568526381923-caf3fd520382?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&w=1000&q=80" alt="Bee Photo"
+         style="width:500px;height:600px;">
     <section id="isSignedOut">
         <button id="signInBtn"> Sign in with Google</button>
     </section>
