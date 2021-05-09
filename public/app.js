@@ -39,7 +39,7 @@ auth.onAuthStateChanged(user => {
         unsubscribe = beeRacksRef
         .where("uid", "==", user.uid)
         // .orderBy('time')
-        .get(querySnapshot => {
+        .onSnapshot(querySnapshot => {
             const racks = querySnapshot.docs.map(doc => {
                 return `<li> ${ doc.data().temperature } </li>`
             });
