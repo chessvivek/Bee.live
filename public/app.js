@@ -69,7 +69,6 @@ auth.onAuthStateChanged(user => {
 
         sensorDataRef = db.collection(COLLECTION_NAME);
 
-        // const { serverTimestamp } = firebase.firestore.FieldValue;
         // createBeeRack.onclick = () => {
         //     beeRacksRef.add({
         //         uid: user.uid,
@@ -80,16 +79,33 @@ auth.onAuthStateChanged(user => {
         //     });
         // }
         
+        let before2Hour = new Date().getTime() - (2 * 3600 * 1000);
+
         unsubscribe = sensorDataRef
         // .where("uid", "==", user.uid)
-        // .orderBy('time')
+        .orderBy('time')
+        .startAt(before2Hour)
         .onSnapshot(querySnapshot => {
+
+            seconds = firebase.firestore.Timestamp.now().seconds;
+
+            console.log("seconds");
+            console.log(seconds);
+            console.log("seconds");
+
+            seconds = seconds - 7200;
+
             const temperatureData = querySnapshot.docs.map(doc => {
-                return [Number(doc.data().time["seconds"]) - 1620565000, Number(doc.data().temperature)];
+                return [Number(doc.data().time["seconds"]) - seconds, Number(doc.data().temperature)];
             });
             const fanSpeedData = querySnapshot.docs.map(doc => {
-                return [Number(doc.data().time["seconds"]) - 1620565000, Number(doc.data().fan1Speed), Number(doc.data().fan2Speed)];
+                return [Number(doc.data().time["seconds"]) - seconds, Number(doc.data().fan1Speed), Number(doc.data().fan2Speed)];
             });
+
+            const tempData = temperatureData.map(data => {
+
+            }
+            )
 
             temperatureData.sort(function(a, b) {
                 return a[0] - b[0];
